@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuPro - Professional Invoices & Quotations Generator</title>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none"></div>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden" style="background: rgba(15, 23, 42, 0.6);">
+        <div class="card max-w-md w-full p-6 relative" style="background-color: var(--bg-card); border-radius: 1rem; box-shadow: var(--shadow-2xl);">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4" style="background:none; border:none; cursor:pointer; color:var(--text-secondary);">
+                <i data-lucide="x" style="width:1.25rem; height:1.25rem;"></i>
+            </button>
+            <div class="text-center" style="margin-bottom: 1.5rem;">
+                <div style="width: 3rem; height: 3rem; background-color: var(--primary-light); color: var(--primary); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto;">
+                    <i data-lucide="lock" style="width: 1.5rem; height: 1.5rem;"></i>
+                </div>
+                <h3 id="auth-modal-title" class="text-xl font-bold">Welcome to DocuPro</h3>
+                <p id="auth-modal-subtitle" class="text-xs" style="color: var(--text-secondary); margin-top: 0.25rem;">Please sign in or create an account to access the generator.</p>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div id="auth-name-field" class="hidden">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="auth-name" placeholder="John Doe" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="auth-email" required placeholder="name@example.com" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Password</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••" class="form-input">
+                </div>
+                <button type="submit" id="auth-submit-btn" class="btn-primary" style="width: 100%; padding: 0.875rem; justify-content: center;">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="text-center text-xs" style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color); color: var(--text-secondary);">
+                <span id="auth-switch-text">Don't have an account?</span>
+                <button type="button" onclick="toggleAuthMode()" id="auth-switch-btn" style="background:none; border:none; color:var(--primary); font-weight:600; cursor:pointer; margin-left:0.25rem;">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header>
+        <div class="header-inner">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('landing')">
+                <div style="background-color: var(--primary); color: #ffffff; padding: 0.5rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md);">
+                    <i data-lucide="file-text" style="width: 1.5rem; height: 1.5rem;"></i>
+                </div>
+                <span style="font-size: 1.25rem; font-weight: 700; background: linear-gradient(to right, #2563eb, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">DocuPro</span>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hide-mobile" style="display: flex; align-items: center; gap: 1.5rem; font-size: 0.875rem; font-weight: 500;">
+                <button onclick="switchView('landing')" style="background:none; border:none; cursor:pointer; color:var(--text-secondary); font-family:inherit; font-size:inherit;">Home</button>
+                <a href="#features" onclick="switchView('landing')" style="color:var(--text-secondary); text-decoration:none;">Features</a>
+                <a href="#how-it-works" onclick="switchView('landing')" style="color:var(--text-secondary); text-decoration:none;">How It Works</a>
+                <button onclick="checkAccessAndSwitch('generator')" style="background:none; border:none; cursor:pointer; color:var(--text-secondary); font-family:inherit; font-size:inherit;">Generator</button>
+                <button onclick="checkAccessAndSwitch('history')" style="background:none; border:none; cursor:pointer; color:var(--text-secondary); font-family:inherit; font-size:inherit;">My Documents</button>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="btn-secondary" style="padding: 0.5rem; border-radius: 0.5rem;" aria-label="Toggle Theme">
+                    <i data-lucide="sun" id="theme-icon-sun" class="hidden" style="width: 1.25rem; height: 1.25rem;"></i>
+                    <i data-lucide="moon" id="theme-icon-moon" style="width: 1.25rem; height: 1.25rem;"></i>
+                </button>
+
+                <!-- User Profile / Auth Area -->
+                <div id="user-auth-area" class="flex items-center gap-3">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="btn-secondary hide-desktop" style="padding: 0.5rem; border-radius: 0.5rem; display: none;" aria-label="Menu">
+                    <i data-lucide="menu" style="width: 1.5rem; height: 1.5rem;"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden" style="background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 0.75rem 1rem 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <button onclick="switchView('landing'); toggleMobileMenu();" style="text-align: left; background: none; border: none; padding: 0.5rem; border-radius: 0.5rem; color: var(--text-main); font-weight: 500; cursor:pointer;">Home</button>
+            <button onclick="checkAccessAndSwitch('generator'); toggleMobileMenu();" style="text-align: left; background: none; border: none; padding: 0.5rem; border-radius: 0.5rem; color: var(--text-main); font-weight: 500; cursor:pointer;">Generator</button>
+            <button onclick="checkAccessAndSwitch('history'); toggleMobileMenu();" style="text-align: left; background: none; border: none; padding: 0.5rem; border-radius: 0.5rem; color: var(--text-main); font-weight: 500; cursor:pointer;">My Documents</button>
+            <div id="mobile-auth-btn-container" style="padding-top: 0.5rem;"></div>
+        </div>
+    </header>
+
+    <!-- CONTENT VIEWS CONTAINER -->
+    <main style="flex-grow: 1;">
+
+        <!-- 1. LANDING PAGE VIEW -->
+        <section id="view-landing" class="view-section">
+            <!-- Hero Section -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 lg-grid-items-center" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3rem; align-items: center;">
+                <div class="lg-col-7" style="grid-column: span 12 / span 12; text-align: center;">
+                    <style>@media(min-width:1024px){.lg-col-7{grid-column: span 7 / span 7 !important; text-align: left !important;}}</style>
+                    <div class="hero-badge">
+                        <i data-lucide="sparkles" style="width: 0.875rem; height: 0.875rem;"></i> Professional Invoices & Quotations
+                    </div>
+                    <h1 style="font-size: 2.5rem; line-height: 1.1; font-weight: 800; letter-spacing: -0.025em; margin-top: 1rem; margin-bottom: 1.5rem;">
+                        Create Professional Quotations & Invoices <span style="color: var(--primary);">in Minutes</span>
+                    </h1>
+                    <p style="font-size: 1.125rem; color: var(--text-secondary); max-width: 42rem; margin: 0 auto 2rem auto;" class="lg-mx-0">
+                        Simple, fast and free tool for freelancers and small businesses. Create, manage and print your documents with a clean, professional design in Moroccan Dirhams (MAD).
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4" style="display: flex; flex-wrap: wrap;">
+                        <button onclick="checkAccessAndSwitch('generator')" class="btn-primary" style="padding: 1rem 2rem; font-size: 1rem;">
+                            <i data-lucide="arrow-right" style="width: 1.25rem; height: 1.25rem;"></i>
+                            Create Document Now
+                        </button>
+                        <a href="#features" class="btn-secondary" style="padding: 1rem 1.5rem; font-size: 1rem; text-decoration: none;">
+                            Learn More
+                        </a>
+                    </div>
+                    <div style="margin-top: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                        <div style="display: flex; align-items: center; gap: 0.375rem;"><i data-lucide="check-circle-2" style="width: 1rem; height: 1rem; color: var(--emerald-text);"></i> Secure Login System</div>
+                        <div style="display: flex; align-items: center; gap: 0.375rem;"><i data-lucide="check-circle-2" style="width: 1rem; height: 1rem; color: var(--emerald-text);"></i> Local storage safe</div>
+                    </div>
+                </div>
+
+                <!-- Hero Visual Preview -->
+                <div class="lg-col-5" style="grid-column: span 12 / span 12; position: relative;">
+                    <style>@media(min-width:1024px){.lg-col-5{grid-column: span 5 / span 5 !important;}}</style>
+                    <div style="position: absolute; inset: -0.25rem; background: linear-gradient(to right, #2563eb, #4f46e5); border-radius: 1rem; filter: blur(12px); opacity: 0.3;"></div>
+                    <div class="card" style="position: relative; padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow-2xl); display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 2rem; height: 2rem; border-radius: 0.5rem; background-color: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">D</div>
+                                <span style="font-weight: 700;">DocuPro</span>
+                            </div>
+                            <span style="padding: 0.25rem 0.625rem; background-color: var(--primary-light); color: var(--primary); font-weight: 600; font-size: 0.75rem; border-radius: 0.375rem;">QUOTATION</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between;">
+                            <span>Bill To: Client Name</span><span>Date: 2026-03-30</span>
+                        </div>
+                        <div style="border: 1px solid var(--border-color); border-radius: 0.5rem; overflow: hidden;">
+                            <div style="background-color: var(--bg-subtle); padding: 0.5rem 0.75rem; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between;">
+                                <span>Description</span><span>Total (MAD)</span>
+                            </div>
+                            <div style="padding: 0.5rem 0.75rem; font-size: 0.75rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                                <span>Web Design</span><span>300 MAD</span>
+                            </div>
+                            <div style="padding: 0.5rem 0.75rem; font-size: 0.75rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                                <span>Hosting</span><span>200 MAD</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; font-weight: 700; font-size: 0.875rem;">
+                            <span>Grand Total:</span>
+                            <span style="color: var(--primary); font-size: 1rem;">500 MAD</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Highlight Section -->
+            <section id="features" style="padding: 5rem 0; background-color: var(--bg-card); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto" style="margin-bottom: 4rem;">
+                        <h2 style="font-size: 2rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 1rem;">Everything You Need for Professional Billing</h2>
+                        <p style="color: var(--text-secondary);">Designed with freelancers, agencies, and small business owners in mind.</p>
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="card" style="padding: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="width: 3rem; height: 3rem; border-radius: 0.75rem; background-color: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                <i data-lucide="zap" style="width: 1.5rem; height: 1.5rem;"></i>
+                            </div>
+                            <h3 style="font-size: 1.25rem; font-weight: 700;">Fast & Easy</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">Create quotations and invoices in just a few clicks with auto-calculating totals and live preview.</p>
+                        </div>
+
+                        <div class="card" style="padding: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="width: 3rem; height: 3rem; border-radius: 0.75rem; background-color: rgba(99, 102, 241, 0.15); color: #6366f1; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                <i data-lucide="shield-check" style="width: 1.5rem; height: 1.5rem;"></i>
+                            </div>
+                            <h3 style="font-size: 1.25rem; font-weight: 700;">Professional Design</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">Clean, modern, and print-ready templates tailored for standard business compliance in MAD.</p>
+                        </div>
+
+                        <div class="card" style="padding: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="width: 3rem; height: 3rem; border-radius: 0.75rem; background-color: var(--emerald-bg); color: var(--emerald-text); display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                <i data-lucide="lock" style="width: 1.5rem; height: 1.5rem;"></i>
+                            </div>
+                            <h3 style="font-size: 1.25rem; font-weight: 700;">Secure & Local</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">Your data stays safe in your browser with localStorage. No external database or signup required.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How It Works Section -->
+            <section id="how-it-works" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                <div class="text-center max-w-3xl mx-auto" style="margin-bottom: 4rem;">
+                    <h2 style="font-size: 2rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 1rem;">How It Works</h2>
+                    <p style="color: var(--text-secondary);">Get your professional quotation or invoice ready in 4 simple steps.</p>
+                </div>
+
+                <div class="grid-4">
+                    <div class="text-center" style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
+                        <div style="width: 3rem; height: 3rem; border-radius: 9999px; background-color: var(--primary); color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; box-shadow: var(--shadow-md);">1</div>
+                        <h4 style="font-weight: 700;">Choose Type</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Select whether you are generating a Quotation or an Invoice.</p>
+                    </div>
+
+                    <div class="text-center" style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
+                        <div style="width: 3rem; height: 3rem; border-radius: 9999px; background-color: var(--primary); color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; box-shadow: var(--shadow-md);">2</div>
+                        <h4 style="font-weight: 700;">Add Details</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Fill in your business, client, and itemized services with quantities and prices.</p>
+                    </div>
+
+                    <div class="text-center" style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
+                        <div style="width: 3rem; height: 3rem; border-radius: 9999px; background-color: var(--primary); color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; box-shadow: var(--shadow-md);">3</div>
+                        <h4 style="font-weight: 700;">Preview & Check</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Review your document live with automatic subtotal, discount, and grand total calculations.</p>
+                    </div>
+
+                    <div class="text-center" style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
+                        <div style="width: 3rem; height: 3rem; border-radius: 9999px; background-color: var(--primary); color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; box-shadow: var(--shadow-md);">4</div>
+                        <h4 style="font-weight: 700;">Print or Save</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Use the print button to export as PDF/print or save draft for later use.</p>
+                    </div>
+                </div>
+
+                <div class="text-center" style="margin-top: 4rem;">
+                    <button onclick="checkAccessAndSwitch('generator')" class="btn-primary" style="padding: 1rem 2rem; font-size: 1.125rem;">
+                        Get Started Now — It's Free
+                    </button>
+                </div>
+            </section>
+        </section>
+
+        <!-- 2. GENERATOR APP VIEW -->
+        <section id="view-generator" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="lg-grid-12" style="display: flex; flex-direction: column; gap: 2rem;">
+                <style>@media(min-width:1024px){.lg-grid-12{display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));}}</style>
+                
+                <!-- Left/Main Column: Form Editor -->
+                <div class="lg-col-7" style="grid-column: span 12 / span 12; display: flex; flex-direction: column; gap: 1.5rem;">
+                    <style>@media(min-width:1024px){.lg-col-7{grid-column: span 7 / span 7 !important;}}</style>
+                    
+                    <div class="card p-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="font-size: 1.5rem; font-weight: 700;">Create Document</h2>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">Fill in the details below and preview your document in real time.</p>
+                        </div>
+                        <!-- Document Type Selector -->
+                        <div style="display: inline-flex; padding: 0.25rem; background-color: var(--bg-subtle); border-radius: 0.75rem; border: 1px solid var(--border-color); width: 100%; max-width: 250px;">
+                            <button type="button" id="type-quotation" onclick="setDocumentType('Quotation')" style="flex: 1; padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: 0.15s; background-color: var(--primary); color: white; box-shadow: var(--shadow-sm);">Quotation</button>
+                            <button type="button" id="type-invoice" onclick="setDocumentType('Invoice')" style="flex: 1; padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: 0.15s; background: transparent; color: var(--text-secondary);">Invoice</button>
+                        </div>
+                    </div>
+
+                    <!-- Main Editor Form -->
+                    <form id="doc-form" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <!-- Business & Client Info Grid -->
+                        <div class="grid-2">
+                            
+                            <!-- Business Information -->
+                            <div class="card p-6" style="display: flex; flex-direction: column; gap: 1rem;">
+                                <h3 style="font-weight: 700; display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                                    <i data-lucide="briefcase" style="width: 1rem; height: 1rem; color: var(--primary);"></i> Business Information
+                                </h3>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <div>
+                                        <label class="form-label">Business Name *</label>
+                                        <input type="text" id="biz-name" required placeholder="e.g. My Digital Agency" oninput="saveDraftAuto(); updatePreview();" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Address</label>
+                                        <input type="text" id="biz-address" placeholder="123 Main Street, Tangier" oninput="saveDraftAuto(); updatePreview();" class="form-input">
+                                    </div>
+                                    <div class="grid-2">
+                                        <div>
+                                            <label class="form-label">Email</label>
+                                            <input type="email" id="biz-email" placeholder="contact@mybiz.com" oninput="saveDraftAuto(); updatePreview();" class="form-input">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Phone</label>
+                                            <input type="text" id="biz-phone" placeholder="+212 600 123 456" oninput="saveDraftAuto(); updatePreview();" class="form-input">
+                                        </div>
+                                    </div>
+                                    <!-- Logo Upload Field -->
+                                    <div>
+                                        <label class="form-label">Company Logo</label>
+                                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                            <input type="file" id="biz-logo-input" accept="image/*" onchange="handleLogoUpload(event)" style="width: 100%; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer;">
+                                            <button type="button" onclick="removeLogo()" id="remove-logo-btn" class="hidden" style="background:none; border:none; color: var(--red-text); font-size: 0.75rem; cursor: pointer; text-decoration: underline;">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Client Information -->
+                            <div class="card p-6" style="display: flex; flex-direction: column; gap: 1rem;">
+                                <h3 style="font-weight: 700; display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                                    <i data-lucide="user" style="width: 1rem; height: 1rem; color: var(--primary);"></i> Client Information
+                                </h3>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <div>
+                                        <label class="form-label">Client Name *</label>
+                                        <input type="text" id="client-name" required placeholder="e.g. Acme Corporation" oninput="saveDraftAuto(); updatePreview();" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Client Address</label>
+                                        <input type="text" id="client-address" placeholder="456 Avenue Mohammed V, Casablanca" oninput="saveDraftAuto(); updatePreview();" class="form-input">
+                                    </div>
+                                    <div class="grid-2">
+                                        <div>
+                                            <label class="form-label">Date *</label>
+                                            <input type="date" id="doc-date" required onchange="saveDraftAuto(); updatePreview();" class="form-input">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Document Number</label>
+                                            <input type="text" id="doc-number" placeholder="#QT-2026-001" oninput="saveDraftAuto(); updatePreview();" class="form-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Optional Settings & Discount -->
+                        <div class="card p-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
+                                <div style="padding: 0.5rem; background-color: var(--primary-light); color: var(--primary); border-radius: 0.75rem; display:flex; align-items:center; justify-content:center;">
+                                    <i data-lucide="percent" style="width: 1.25rem; height: 1.25rem;"></i>
+                                </div>
+                                <div>
+                                    <h4 style="font-weight: 700; font-size: 0.875rem;">Discount Percentage</h4>
+                                    <p style="font-size: 0.75rem; color: var(--text-secondary);">Apply optional discount to grand total</p>
+                                </div>
+                            </div>
+                            <div style="width: 100%; max-width: 12rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="number" id="doc-discount" min="0" max="100" value="0" oninput="saveDraftAuto(); updatePreview();" class="form-input" style="text-align: right;">
+                                <span style="font-weight: 700; color: var(--text-secondary);">%</span>
+                            </div>
+                        </div>
+
+                        <!-- Line Items Section -->
+                        <div class="card p-6" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="font-weight: 700; display: flex; align-items: center; gap: 0.5rem; font-size: 1.0rem;">
+                                    <i data-lucide="list-ordered" style="width: 1rem; height: 1rem; color: var(--primary);"></i> Items & Services
+                                </h3>
+                                <button type="button" onclick="addItemRow()" style="display: inline-flex; align-items: center; gap: 0.375rem; background-color: var(--primary-light); color: var(--primary-text); border: none; padding: 0.5rem 0.875rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                                    <i data-lucide="plus" style="width: 1rem; height: 1rem;"></i> Add Item
+                                </button>
+                            </div>
+
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; text-align: left; border-collapse: collapse; min-width: 600px;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">
+                                            <th style="padding: 0.625rem 0.5rem; width: 3rem;">#</th>
+                                            <th style="padding: 0.625rem 0.5rem;">Description *</th>
+                                            <th style="padding: 0.625rem 0.5rem; width: 7rem;">Quantity *</th>
+                                            <th style="padding: 0.625rem 0.5rem; width: 9rem;">Unit Price (MAD) *</th>
+                                            <th style="padding: 0.625rem 0.5rem; width: 8rem; text-align: right;">Total (MAD)</th>
+                                            <th style="padding: 0.625rem 0.5rem; width: 3rem; text-align: center;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items-table-body" style="font-size: 0.875rem;">
+                                        <!-- Dynamic items injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Grand Total Quick Bar -->
+                            <div style="display: flex; justify-content: flex-end; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-color); gap: 1.5rem;">
+                                <span style="font-size: 0.875rem; font-weight: 600; color: var(--text-secondary);">Grand Total (MAD):</span>
+                                <span id="quick-grand-total" style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">0.00 MAD</span>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions Bottom Bar -->
+                        <div style="display: flex; flex-wrap: wrap; items: center; justify-content: space-between; gap: 1rem;">
+                            <div>
+                                <span id="auto-save-indicator" style="display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: var(--emerald-text); font-weight: 500; background-color: var(--emerald-bg); padding: 0.375rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--emerald-border);">
+                                    <i data-lucide="check-circle-2" style="width: 0.875rem; height: 0.875rem;"></i> Draft saved in localStorage!
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                                <button type="button" onclick="clearForm()" class="btn-secondary" style="padding: 0.625rem 1rem;">
+                                    Clear Form
+                                </button>
+                                <button type="button" onclick="saveDocumentHistory()" style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: #059669; color: white; border: none; padding: 0.625rem 1.25rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-sm);">
+                                    <i data-lucide="save" style="width: 1rem; height: 1rem;"></i> Save to My Documents
+                                </button>
+                                <button type="button" onclick="triggerPrintCheck()" class="btn-primary" style="padding: 0.625rem 1.5rem;">
+                                    <i data-lucide="printer" style="width: 1rem; height: 1rem;"></i> Print Document
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Column: Live Document Preview -->
+                <div class="lg-col-5 preview-sticky-col" style="grid-column: span 12 / span 12;">
+                    <style>@media(min-width:1024px){.lg-col-5{grid-column: span 5 / span 5 !important;}}</style>
+                    <div style="position: sticky; top: 5rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <h3 style="font-weight: 700; display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                                <i data-lucide="eye" style="width: 1rem; height: 1rem; color: var(--primary);"></i> Live Preview
+                            </h3>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Updates instantly</span>
+                        </div>
+
+                        <!-- Printable Document Container -->
+                        <div id="printable-document" style="background-color: #ffffff; color: #1e293b; padding: 2rem; border-radius: 1rem; box-shadow: var(--shadow-xl); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1.5rem; font-size: 0.875rem; position: relative; overflow: hidden;">
+                            <!-- Top Decorative Accent Bar -->
+                            <div style="position: absolute; top: 0; left: 0; right: 0; height: 0.5rem; background: linear-gradient(to right, #2563eb, #4f46e5, #1d4ed8);"></div>
+
+                            <!-- Header Info -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.25rem; padding-top: 0.5rem;">
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                                    <div id="preview-logo-wrapper" class="hidden" style="flex-shrink: 0; width: 3.5rem; height: 3.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; overflow: hidden; background-color: #f8fafc; display: flex; align-items: center; justify-content: center;">
+                                        <img id="preview-logo-img" src="" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                                        <h1 id="preview-biz-name" style="font-size: 1.125rem; font-weight: 900; letter-spacing: -0.025em; color: #0f172a;">My Business</h1>
+                                        <p id="preview-biz-address" style="font-size: 0.6875rem; color: #64748b;">123 Main Street, Tangier</p>
+                                        <p id="preview-biz-contact" style="font-size: 0.6875rem; color: #64748b; font-weight: 500;">contact@mybiz.com | +212 600 123 456</p>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <h2 id="preview-doc-type-title" style="font-size: 1.25rem; font-weight: 900; color: #2563eb; letter-spacing: 0.05em; text-transform: uppercase;">QUOTATION</h2>
+                                    <div style="display: inline-block; background-color: #f1f5f9; padding: 0.25rem 0.625rem; border-radius: 0.375rem; margin-top: 0.25rem;">
+                                        <p id="preview-doc-number" style="font-size: 0.75rem; font-weight: 700; color: #334155;">#QT-2026-001</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Client & Invoice Meta Info Cards -->
+                            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; background-color: #f8fafc; padding: 0.875rem; border-radius: 0.75rem; border: 1px solid #f1f5f9; font-size: 0.75rem;">
+                                <div>
+                                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.5625rem; display: block; margin-bottom: 0.25rem;">Billed To :</span>
+                                    <h3 id="preview-client-name" style="font-weight: 700; color: #0f172a; font-size: 0.875rem;">Client Name</h3>
+                                    <p id="preview-client-address" style="color: #64748b; font-size: 0.6875rem; margin-top: 0.125rem;">Client Address</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.5625rem; display: block; margin-bottom: 0.25rem;">Issue Date :</span>
+                                    <p id="preview-doc-date" style="font-weight: 700; color: #1e293b; font-size: 0.875rem; margin-top: 0.125rem;">2026-03-30</p>
+                                    <div style="margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.625rem; color: #059669; font-weight: 600; background-color: #ecfdf5; padding: 0.125rem 0.375rem; border-radius: 0.25rem;">
+                                        <i data-lucide="check-circle" style="width: 0.75rem; height: 0.75rem;"></i> Verified Status
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Professional Items Table -->
+                            <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; box-shadow: var(--shadow-sm);">
+                                <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background-color: #0f172a; color: white; font-weight: 700; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                                            <th style="padding: 0.625rem 0.75rem; width: 2.5rem; text-align: center;">#</th>
+                                            <th style="padding: 0.625rem 0.75rem;">Description</th>
+                                            <th style="padding: 0.625rem 0.75rem; text-align: center; width: 3.5rem;">Qty</th>
+                                            <th style="padding: 0.625rem 0.75rem; text-align: right; width: 5.5rem;">Price</th>
+                                            <th style="padding: 0.625rem 0.75rem; text-align: right; width: 5.5rem;">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="preview-items-body" style="font-size: 0.75rem;">
+                                        <!-- Injected via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Totals Box -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 0.5rem;">
+                                <div style="font-size: 0.625rem; color: #94a3b8; max-width: 12rem; line-height: 1.25;">
+                                    <p>Terms & Conditions: Payment is due within 15 days of issue date.</p>
+                                </div>
+                                <div style="width: 14rem; display: flex; flex-direction: column; gap: 0.375rem; font-size: 0.75rem; background-color: #f8fafc; padding: 0.75rem; border-radius: 0.75rem; border: 1px solid #f1f5f9;">
+                                    <div style="display: flex; justify-content: space-between; color: #475569;">
+                                        <span>Subtotal:</span>
+                                        <span id="preview-subtotal" style="font-weight: 600;">0.00 MAD</span>
+                                    </div>
+                                    <div id="preview-discount-row" class="hidden" style="display: flex; justify-content: space-between; color: #475569;">
+                                        <span id="preview-discount-label">Discount (0%):</span>
+                                        <span id="preview-discount-amount" style="font-weight: 600; color: #dc2626;">-0.00 MAD</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; font-weight: 900; color: #0f172a; padding-top: 0.375rem; border-top: 1px solid #e2e8f0;">
+                                        <span>Grand Total:</span>
+                                        <span id="preview-grand-total" style="color: #2563eb;">0.00 MAD</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer Signature Note -->
+                            <div style="padding-top: 1.25rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-end; color: #94a3b8; font-size: 0.625rem;">
+                                <span>Thank you for your business! This is a computer-generated document.</span>
+                                <div style="text-align: center;">
+                                    <div style="height: 1.75rem; border-bottom: 1px dashed #cbd5e1; width: 7rem; margin-bottom: 0.25rem;"></div>
+                                    <span id="preview-signature-name" style="font-weight: 700; color: #334155;">Authorized Signature</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Print Action Button -->
+                        <button type="button" onclick="triggerPrintCheck()" class="btn-primary" style="width: 100%; padding: 0.875rem; justify-content: center;">
+                            <i data-lucide="printer" style="width: 1rem; height: 1rem;"></i> Print / Save as PDF
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. MY DOCUMENTS HISTORY VIEW -->
+        <section id="view-history" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div style="display: flex; flex-direction: column; sm-flex-row; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+                    <div>
+                        <h2 style="font-size: 1.875rem; font-weight: 700; letter-spacing: -0.025em;">My Saved Documents</h2>
+                        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Access, reload or delete your previously saved quotations and invoices.</p>
+                    </div>
+                    <button onclick="switchView('generator')" class="btn-primary" style="padding: 0.625rem 1rem;">
+                        <i data-lucide="plus" style="width: 1rem; height: 1rem;"></i> Create New
+                    </button>
+                </div>
+
+                <div id="saved-docs-container" class="grid-3" style="margin-top: 1rem;">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer style="background-color: var(--bg-card); border-top: 1px solid var(--border-color); margin-top: 5rem;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-6" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="background-color: var(--primary); color: white; padding: 0.5rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="file-text" style="width: 1.25rem; height: 1.25rem;"></i>
+                </div>
+                <span style="font-weight: 700; font-size: 1.125rem;">DocuPro</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.5rem;">© 2026 DocuPro. All rights reserved.</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                <button onclick="switchView('landing')" style="background:none; border:none; cursor:pointer; color:inherit; font-family:inherit;">Home</button>
+                <button onclick="checkAccessAndSwitch('generator')" style="background:none; border:none; cursor:pointer; color:inherit; font-family:inherit;">Generator</button>
+                <button onclick="checkAccessAndSwitch('history')" style="background:none; border:none; cursor:pointer; color:inherit; font-family:inherit;">My Documents</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CUSTOM MODAL ALERT -->
+    <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background: rgba(15, 23, 42, 0.6);">
+        <div class="card max-w-md w-full p-6" style="background-color: var(--bg-card); border-radius: 1rem; box-shadow: var(--shadow-2xl); display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; background-color: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="alert-triangle" style="width: 1.25rem; height: 1.25rem;"></i>
+                </div>
+                <h3 id="modal-title" style="font-size: 1.125rem; font-weight: 700;">Notice</h3>
+            </div>
+            <p id="modal-message" style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;"></p>
+            <div style="display: flex; justify-content: flex-end; padding-top: 0.5rem;">
+                <button onclick="closeModal()" class="btn-primary" style="padding: 0.625rem 1.25rem;">
+                    Got it
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+    
+</body>
+</html>
