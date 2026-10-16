@@ -1,4 +1,4 @@
-
+     
         /* CSS Reset & Variables */
         :root {
             --bg-main: #f8fafc;
@@ -310,8 +310,20 @@
             letter-spacing: 0.05em;
         }
 
-        /* Print styles */
+        /* Print styles - FIX FOR EXACT 1 PAGE A4 */
         @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0mm !important;
+            }
+            html, body {
+                width: 210mm !important;
+                height: 297mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                background: #ffffff !important;
+            }
             body * {
                 visibility: hidden !important;
             }
@@ -322,25 +334,26 @@
                 position: fixed !important;
                 left: 0 !important;
                 top: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                max-height: 100vh !important;
+                width: 210mm !important;
+                max-width: 210mm !important;
+                height: 297mm !important;
+                max-height: 297mm !important;
                 margin: 0 !important;
-                padding: 12mm !important;
+                padding: 10mm 12mm !important;
                 box-shadow: none !important;
                 border: none !important;
                 background: #ffffff !important;
                 color: #1e293b !important;
                 overflow: hidden !important;
+                box-sizing: border-box !important;
+                transform: scale(0.95);
+                transform-origin: top center;
                 page-break-inside: avoid !important;
                 page-break-after: avoid !important;
+                page-break-before: avoid !important;
             }
             .no-print {
                 display: none !important;
-            }
-            @page {
-                size: A4 portrait;
-                margin: 0mm;
             }
         }
 
@@ -359,4 +372,532 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
         }
-    
+  
+
+        
+/* ================================
+   RESPONSIVE HOME PAGE - DOCUPRO
+================================ */
+
+/* Prevent horizontal overflow */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+body {
+    margin: 0;
+    width: 100%;
+    min-width: 320px;
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+button,
+input,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    max-width: 100%;
+}
+
+/* Header */
+header {
+    width: 100%;
+    position: relative;
+    z-index: 20;
+}
+
+.header-inner {
+    width: 100%;
+    max-width: 1280px;
+    min-height: 72px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.header-inner nav {
+    flex-wrap: wrap;
+}
+
+/* Hero section */
+#view-landing > div:first-child {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding: clamp(36px, 6vw, 96px) 24px;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(24px, 4vw, 48px);
+}
+
+#view-landing h1 {
+    font-size: clamp(2rem, 4vw, 3.5rem) !important;
+    line-height: 1.12 !important;
+    overflow-wrap: anywhere;
+}
+
+#view-landing p {
+    overflow-wrap: break-word;
+}
+
+#view-landing .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 100%;
+}
+
+/* Hero preview card */
+#view-landing .card {
+    min-width: 0;
+    max-width: 100%;
+}
+
+#view-landing section {
+    scroll-margin-top: 24px;
+}
+
+#view-landing section > div {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 24px;
+}
+
+/* Responsive feature and step grids */
+.grid-3,
+.grid-4,
+.grid-2 {
+    width: 100%;
+    min-width: 0;
+}
+
+.grid-3,
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.grid-3 > *,
+.grid-4 > *,
+.grid-2 > * {
+    min-width: 0;
+}
+
+/* Tablet */
+@media (max-width: 1023px) {
+    .header-inner {
+        padding-inline: 20px;
+    }
+
+    #view-landing > div:first-child {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 36px;
+        padding-block: 56px;
+    }
+
+    #view-landing > div:first-child > div:first-child {
+        grid-column: 1 / -1 !important;
+        text-align: center !important;
+    }
+
+    #view-landing > div:first-child > div:first-child > p {
+        margin-inline: auto !important;
+    }
+
+    #view-landing > div:first-child > div:first-child > div:last-child {
+        justify-content: center !important;
+    }
+
+    #view-landing > div:first-child > div:nth-child(2) {
+        grid-column: 1 / -1 !important;
+        width: min(100%, 560px);
+        margin-inline: auto;
+    }
+
+    .grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .header-inner {
+        min-height: 64px;
+        padding: 12px 16px;
+        gap: 8px;
+    }
+
+    .header-inner > div:first-child {
+        gap: 8px;
+    }
+
+    .header-inner > div:first-child > span {
+        font-size: 1.1rem !important;
+    }
+
+    .header-inner nav.hide-mobile {
+        display: none !important;
+    }
+
+    .header-inner .hide-desktop {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #mobile-menu {
+        display: flex;
+    }
+
+    #view-landing > div:first-child {
+        padding: 40px 16px;
+        gap: 32px;
+    }
+
+    #view-landing h1 {
+        font-size: clamp(1.9rem, 8vw, 2.5rem) !important;
+        line-height: 1.12 !important;
+        margin-bottom: 16px !important;
+    }
+
+    #view-landing > div:first-child > div:first-child > p {
+        font-size: 1rem !important;
+        line-height: 1.7;
+        margin-bottom: 24px !important;
+    }
+
+    #view-landing > div:first-child > div:first-child > div:nth-of-type(2) {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+
+    #view-landing > div:first-child > div:first-child > div:nth-of-type(2) > * {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    #view-landing > div:first-child > div:first-child > div:last-child {
+        flex-wrap: wrap;
+        gap: 10px !important;
+        font-size: 0.75rem !important;
+    }
+
+    #view-landing .card {
+        padding: 20px !important;
+    }
+
+    #view-landing section {
+        padding-block: 48px !important;
+    }
+
+    #view-landing section > div {
+        padding-inline: 16px;
+    }
+
+    #view-landing h2 {
+        font-size: 1.65rem !important;
+        line-height: 1.25;
+    }
+
+    .grid-3,
+    .grid-4,
+    .grid-2 {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 16px;
+    }
+
+    #view-landing .grid-3 > .card {
+        padding: 24px !important;
+    }
+
+    #view-landing section .text-center {
+        max-width: 100%;
+    }
+
+    footer > div {
+        padding: 32px 16px !important;
+        flex-direction: column;
+        text-align: center;
+        gap: 20px !important;
+    }
+
+    footer > div > div {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+    .header-inner {
+        padding-inline: 10px;
+    }
+
+    .header-inner > div:first-child > div {
+        padding: 6px !important;
+    }
+
+    #view-landing > div:first-child {
+        padding-inline: 12px;
+    }
+
+    #view-landing h1 {
+        font-size: 1.8rem !important;
+    }
+
+    #view-landing .card {
+        padding: 14px !important;
+    }
+
+    #view-landing section > div {
+        padding-inline: 12px;
+    }
+
+    footer > div > div:first-child {
+        gap: 8px;
+    }
+}
+
+
+
+/* =================================
+   DOCUPRO RESPONSIVE NAVBAR
+================================= */
+
+header {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-inner {
+    width: 100%;
+    max-width: 1280px;
+    min-height: 72px;
+    margin: 0 auto;
+    padding: 12px 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* Logo */
+.header-inner > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Desktop navigation */
+.header-inner nav.hide-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 1.8vw, 24px);
+    flex: 1;
+    min-width: 0;
+}
+
+.header-inner nav button,
+.header-inner nav a {
+    white-space: nowrap;
+    font-size: 14px;
+    transition: color 0.2s ease;
+}
+
+.header-inner nav button:hover,
+.header-inner nav a:hover {
+    color: var(--primary) !important;
+}
+
+/* Right-side actions */
+.header-inner > .flex.items-center.gap-3 {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* Theme and secondary buttons */
+.header-inner .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+/* Mobile menu button */
+.header-inner .hide-desktop {
+    display: none;
+}
+
+/* Dropdown menu */
+#mobile-menu {
+    display: none;
+    width: 100%;
+    padding: 12px 16px 20px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+#mobile-menu button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 14px;
+    transition: background 0.2s ease;
+}
+
+#mobile-menu button:hover {
+    background: var(--bg-subtle);
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .header-inner {
+        padding: 12px 18px;
+        gap: 12px;
+    }
+
+    .header-inner nav.hide-mobile {
+        gap: 12px;
+    }
+
+    .header-inner nav button,
+    .header-inner nav a {
+        font-size: 12px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .header-inner {
+        min-height: 64px;
+        padding: 10px 16px;
+        gap: 8px;
+    }
+
+    /* Hide desktop links */
+    .header-inner nav.hide-mobile {
+        display: none !important;
+    }
+
+    /* Keep logo compact */
+    .header-inner > div:first-child {
+        gap: 8px;
+    }
+
+    .header-inner > div:first-child > div {
+        padding: 7px !important;
+    }
+
+    .header-inner > div:first-child > div i {
+        width: 21px !important;
+        height: 21px !important;
+    }
+
+    .header-inner > div:first-child > span {
+        font-size: 19px !important;
+    }
+
+    /* Hide desktop auth area if it becomes too wide */
+    #user-auth-area {
+        gap: 6px;
+    }
+
+    #user-auth-area > * {
+        max-width: 125px;
+    }
+
+    /* Show hamburger */
+    .header-inner .hide-desktop {
+        display: inline-flex !important;
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        padding: 8px !important;
+    }
+
+    /* Dropdown */
+    #mobile-menu:not(.hidden) {
+        display: flex !important;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    #mobile-menu.hidden {
+        display: none !important;
+    }
+}
+
+/* Extra-small phones */
+@media (max-width: 380px) {
+    .header-inner {
+        padding-inline: 10px;
+    }
+
+    .header-inner > div:first-child > span {
+        font-size: 17px !important;
+    }
+
+    .header-inner > .flex.items-center.gap-3 {
+        gap: 6px;
+    }
+
+    .header-inner .btn-secondary {
+        min-width: 36px;
+        min-height: 36px;
+    }
+}
+
+

@@ -1,4 +1,5 @@
-// !-- JAVASCRIPT APPLICATION LOGIC --
+
+        // !-- JAVASCRIPT APPLICATION LOGIC --
         // State management
         let currentView = 'landing';
         let documentType = 'Quotation';
@@ -725,4 +726,12 @@
             if (!str) return '';
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
-  
+   
+
+        function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+
+    if (!menu) return;
+
+    menu.classList.toggle('hidden');
+}
